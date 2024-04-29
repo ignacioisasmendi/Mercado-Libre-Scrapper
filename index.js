@@ -1,35 +1,24 @@
 import puppeteer from "puppeteer";
 
 const getQuotes = async () => {
-  // Start a Puppeteer session with:
-  // - a visible browser (`headless: false` - easier to debug because you'll see the browser in action)
-  // - no default viewport (`defaultViewport: null` - website page will in full width and height)
-  const browser = await puppeteer.launch({
-    headless: false,
-    defaultViewport: null,
-  });
+  console.log('hola')
+  const browser = await puppeteer.launch({executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'});
 
   // Open a new page
   const page = await browser.newPage();
 
-  // On this new page:
-  // - open the "http://quotes.toscrape.com/" website
-  // - wait until the dom content is loaded (HTML is ready)
-  await page.goto("http://quotes.toscrape.com/", {
+  await page.goto("https://articulo.mercadolibre.com.ar/MLA-707916724-switch-wifi-sonoff-basic-r2-con-funcion-pulso-_JM#is_advertising=true&position=1&search_layout=grid&type=pad&tracking_id=58704d89-55d5-4cd9-bdd7-60531bdf9e90&is_advertising=true&ad_domain=VQCATCORE_LST&ad_position=1&ad_click_id=OWVmMDY5NWUtZTMyYS00NDMwLTg4ZjYtNzAzOWUyMzBjMGQ1", {
     waitUntil: "domcontentloaded",
   });
 
   // Get page data
   const quotes = await page.evaluate(() => {
     // Fetch the first element with class "quote"
-    const quote = document.querySelector(".quote");
 
-    // Fetch the sub-elements from the previously fetched quote element
-    // Get the displayed text and return it (`.innerText`)
-    const text = quote.querySelector(".text").innerText;
-    const author = quote.querySelector(".author").innerText;
+    const div = document.querySelector(".ui-pdp-component-list");
+    const title = div.querySelector(".ui-pdp-title").innerText;
 
-    return { text, author };
+    return { title }; ;
   });
 
   // Display the quotes
