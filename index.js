@@ -1,32 +1,47 @@
 import puppeteer from "puppeteer";
 
 const getQuotes = async () => {
-  console.log('hola')
-  const browser = await puppeteer.launch({executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'});
 
-  // Open a new page
-  const page = await browser.newPage();
+  const browser = await puppeteer.launch({executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'}) 
+  const page = await browser.newPage()
 
-  await page.goto("https://articulo.mercadolibre.com.ar/MLA-707916724-switch-wifi-sonoff-basic-r2-con-funcion-pulso-_JM#is_advertising=true&position=1&search_layout=grid&type=pad&tracking_id=58704d89-55d5-4cd9-bdd7-60531bdf9e90&is_advertising=true&ad_domain=VQCATCORE_LST&ad_position=1&ad_click_id=OWVmMDY5NWUtZTMyYS00NDMwLTg4ZjYtNzAzOWUyMzBjMGQ1", {
+  await page.goto('https://listado.mercadolibre.com.ar/sonoff#D[A:sonoff]', {
     waitUntil: "domcontentloaded",
-  });
+  })
 
-  // Get page data
-  const quotes = await page.evaluate(() => {
-    // Fetch the first element with class "quote"
+  const items = await page.evaluate(() => {
+    const items = document.querySelectorAll(".ui-search-link__title-card")
+    const links = [] 
+    items.forEach(item => {
+      const link = item.href
+      links.push(link)
+    })
+    return links
+  })
 
-    const div = document.querySelector(".ui-pdp-component-list");
-    const title = div.querySelector(".ui-pdp-title").innerText;
+  let links = items.filter(item => !item.includes('click1'))
+  console.log(links)
+    
+  for (const link of links) {
+    try {
+        await page.goto(link, { waitUntil: "domcontentloaded" });
+        const details = await page.evaluate(() => {
+            const div = document.querySelector(".ui-pdp-component-list");
+            const title = div.querySelector(".ui-pdp-title").innerText;
+            let sales = div.querySelector(".ui-pdp-subtitle").innerText;
+            sales = sales.match(/\d+/)[0];
+            let price = div.querySelector(".andes-money-amount__fraction").innerText;
+            return { title, sales, price };
+        });
+        console.log(details);
+    } catch (error) {
+        console.error("Error navigating to URL:", link);
+        console.error(error);
+    }
+}
 
-    return { title }; ;
-  });
-
-  // Display the quotes
-  console.log(quotes);
-
-  // Close the browser
   await browser.close();
 };
 
 // Start the scraping
-getQuotes();
+getQuotes()
