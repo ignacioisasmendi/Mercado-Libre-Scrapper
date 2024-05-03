@@ -2,7 +2,8 @@ import puppeteer from "puppeteer";
 
 const getQuotes = async () => {
 
-  const browser = await puppeteer.launch({executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'}) 
+
+  const browser = await puppeteer.launch({headless:true, executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'}) 
   const page = await browser.newPage()
 
   await page.goto('https://listado.mercadolibre.com.ar/sonoff#D[A:sonoff]', {
@@ -20,8 +21,24 @@ const getQuotes = async () => {
   })
 
   let links = items.filter(item => !item.includes('click1'))
-  console.log(links)
-    
+  //console.log(links)
+  await page.setExtraHTTPHeaders({
+    'Accept': 'text/html', // Prioritize text content
+  });
+  await page.goto(links[0], { waitUntil: "domcontentloaded" });
+  const title = await page.evaluate(() => {
+      const title = document.querySelector(".ui-pdp-title").innerText;
+      return title;
+  });
+
+  console.log(title)
+
+
+
+
+
+
+  /*
   for (const link of links) {
     try {
         await page.goto(link, { waitUntil: "domcontentloaded" });
@@ -38,8 +55,8 @@ const getQuotes = async () => {
         console.error("Error navigating to URL:", link);
         console.error(error);
     }
-}
-
+  }
+ */
   await browser.close();
 };
 
